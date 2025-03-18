@@ -2,13 +2,13 @@ const express = require('express');
 const app = express();
 const PORT = 8080;
 
-// Importar los routers
-const routerProductos = require('./routes/products.routes');
-const routerCarritos = require('./routes/carts.routes');
+// Importar routers correctamente
+const routerProductos = require('./src/routes/products.routes');
+const routerCarritos = require('./src/routes/carts.routes');
 
 app.use(express.json());
 
-// Definir rutas base
+// Definir rutas base correctamente
 app.use('/api/products', routerProductos);
 app.use('/api/carts', routerCarritos);
 
