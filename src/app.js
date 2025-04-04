@@ -1,56 +1,51 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const { Server } = require('socket.io');
-const handlebars = require('express-handlebars');
+const dotenv = require('dotenv');
 const path = require('path');
-const http = require('http');
-const ProductManager = require('./managers/productManager');
+const handlebars = require('express-handlebars'); // solo una vez
+
+dotenv.config();
+
+mongoose.connect(process.env.MONGO_URL, { dbName: 'coderhouse' })
+    .then(() => console.log('MongoDB conectado'))
+    .catch(err => console.log(err));
 
 const app = express();
-const server = http.createServer(app);
+const server = app.listen(process.env.PORT, () => {
+    console.log(`Server running on port ${process.env.PORT}`);
+});
+
 const io = new Server(server);
 
-const productManager = new ProductManager();
-
-// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Configurar Handlebars
-app.engine('handlebars', handlebars.engine());
+// ✅ Configuración con helpers incluida
+app.engine('handlebars', handlebars.engine({
+  helpers: {
+    multiply: (a, b) => a * b,
+    totalCarrito: (productos) => {
+      return productos.reduce((total, item) => {
+        return total + item.quantity * item.product.price;
+      }, 0);
+    }
+  }
+}));
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
 
-// Importar routers
-const routerProductos = require('./routes/products.routes');
-const routerCarritos = require('./routes/carts.routes');
+// Importar rutas
+const productsRouter = require('./routes/products.routes');
+const cartsRouter = require('./routes/carts.routes');
 const viewsRouter = require('./routes/views.router');
 
-app.use('/api/products', routerProductos);
-app.use('/api/carts', routerCarritos);
+app.use('/api/products', productsRouter);
+app.use('/api/carts', cartsRouter);
 app.use('/', viewsRouter);
 
-// WebSockets
-io.on('connection', async (socket) => {
-    console.log('Nuevo cliente conectado');
-
-    // Enviar productos al cliente cuando se conecta
-    socket.emit('productos', await productManager.obtenerProductos());
-
-    // Escuchar evento de creación de productos
-    socket.on('nuevoProducto', async (producto) => {
-        const productoCreado = await productManager.agregarProducto(producto);
-        io.emit('productos', await productManager.obtenerProductos());
-    });
-
-    // Escuchar evento de eliminación de productos
-    socket.on('eliminarProducto', async (id) => {
-        await productManager.eliminarProducto(id);
-        io.emit('productos', await productManager.obtenerProductos());
-    });
-});
-
-const PORT = 8080;
-server.listen(PORT, () => {
-    console.log(`Servidor ejecutándose en http://localhost:${PORT}`);
+// WebSocket básico
+io.on('connection', socket => {
+    console.log('Cliente conectado');
 });

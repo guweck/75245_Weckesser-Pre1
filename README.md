@@ -1,50 +1,58 @@
+# 🛒 Proyecto Final BackendI Coderhouse
 
-# Proyecto Backend I - Preentrega 2
-
-**Autor:** Gustavo Weckesser  
-**Curso:** Backend I - Coderhouse - Comisión 75245  
-**Entrega:** Segunda Preentrega  (Reebtrega)
-**Tecnologías:** Node.js, Express, Handlebars, Socket.IO, WebSockets, JavaScript, JSON
+Este proyecto es la entrega final del curso de **Backend I** de **Gustavo Weckesser - comisión 75245**. Se trata de un servidor completo de gestión de productos y carritos de compra con vistas dinámicas, persistencia en MongoDB Atlas, WebSockets, SweetAlert2 y Handlebars.
 
 ---
 
-## 🧠 Descripción
+## 🚀 Tecnologías utilizadas
 
-Este proyecto implementa un servidor backend utilizando **Express**, **Handlebars** como motor de plantillas, y **Socket.IO** para funcionalidades en tiempo real.
+- **Node.js**
+- **Express.js**
+- **MongoDB Atlas**
+- **Mongoose**
+- **Socket.IO**
+- **Express-Handlebars**
+- **SweetAlert2**
+- **dotenv**
+- **Nodemon**
 
-Se desarrollaron dos vistas:
-
-- `/` → Muestra un listado estático de productos (`home.handlebars`).
-- `/realtimeproducts` → Permite crear y eliminar productos con WebSocket, actualizando la vista en tiempo real (`realTimeProducts.handlebars`).
-
----
 
 
-## 🧪 Funcionalidades
+### 🔹 Productos
 
-- ✅ Listado de productos desde archivo `products.json`
-- ✅ Agregar producto con formulario en tiempo real
-- ✅ Eliminar producto con botón (actualización automática)
-- ✅ WebSockets con Socket.IO
-- ✅ Uso de `ProductManager.js` para operaciones de persistencia
-- ✅ Rutas REST para `/api/products` y `/api/carts`
-- ✅ Rutas de vistas separadas en `views.router.js`
+- `GET /products` → Listado paginado, ordenado y filtrado de productos
+- `GET /products/:pid` → Vista individual de producto con botón de agregar al carrito
 
----
+### 🔹 Carritos
 
-## 📄 Dependencias principales
+- `POST /api/carts` → Crear nuevo carrito
+- `POST /api/carts/:cid/products/:pid` → Agregar producto al carrito
+- `GET /carts/:cid` → Vista del carrito con productos populados y totales
 
-- [express](https://www.npmjs.com/package/express)
-- [socket.io](https://www.npmjs.com/package/socket.io)
-- [express-handlebars](https://www.npmjs.com/package/express-handlebars)
-- [nodemon](https://www.npmjs.com/package/nodemon) (solo para desarrollo)
+### 🔹 Websockets
+
+- `GET /realtimeproducts` → Vista con productos actualizados en tiempo real
 
 ---
 
-## 📌 Observaciones
 
-- El servidor levanta desde `src/app.js`.
-- Toda la lógica de productos y carritos está modularizada en `managers/`.
-- Los datos se persisten en archivos JSON locales en `src/data/`.
+## 🧪 Pruebas funcionales
+
+- Productos: paginación, ordenamiento y visualización
+- Detalle de producto: funcional, con botón de agregar al carrito
+- Carrito: agregado correcto, visualización con totales
+- WebSocket: actualiza vista en tiempo real
+- MongoDB Atlas: persiste información correctamente
 
 ---
+
+## 💬 Autor
+
+- Gustavo Weckesser
+- Coderhouse | Curso Backend | Comisión 75245
+
+---
+
+## 🏁 Estado del proyecto
+
+✅ Completado y funcional verificado.

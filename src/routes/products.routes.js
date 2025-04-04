@@ -1,34 +1,49 @@
-const express = require('express');
-const router = express.Router();
-const ProductManager = require('../managers/productManager');
+const router = require('express').Router();
+const Product = require('../dao/models/product.model');
 
-const productManager = new ProductManager();
-
+// GET /api/products con paginación, filtro y orden
 router.get('/', async (req, res) => {
-    try {
-        const productos = await productManager.obtenerProductos();
-        res.json(productos);
-    } catch (error) {
-        res.status(500).json({ error: "Error al obtener productos" });
-    }
-});
+try {
+    const { limit = 10, page = 1, sort, query } = req.query;
 
-router.get('/:pid', async (req, res) => {
-    try {
-        const producto = await productManager.obtenerProductoPorId(parseInt(req.params.pid));
-        producto ? res.json(producto) : res.status(404).json({ error: 'Producto no encontrado' });
-    } catch (error) {
-        res.status(500).json({ error: "Error al buscar el producto" });
-    }
-});
+    const filtro = query
+    ? {
+        $or: [
+            { category: query },
+            { status: query === 'true' || query === 'false' ? query === 'true' : undefined }
+        ]
+        }
+    : {};
 
-router.post('/', async (req, res) => {
-    try {
-        const nuevoProducto = await productManager.agregarProducto(req.body);
-        res.status(201).json(nuevoProducto);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
+    const options = {
+    limit: parseInt(limit),
+    page: parseInt(page),
+    sort: sort === 'asc' ? { price: 1 } : sort === 'desc' ? { price: -1 } : undefined,
+    lean: true
+    };
+
+    const result = await Product.paginate(filtro, options);
+
+    res.json({
+    status: 'success',
+    payload: result.docs,
+    totalPages: result.totalPages,
+    prevPage: result.prevPage,
+    nextPage: result.nextPage,
+    page: result.page,
+    hasPrevPage: result.hasPrevPage,
+    hasNextPage: result.hasNextPage,
+    prevLink: result.hasPrevPage
+        ? `/api/products?limit=${limit}&page=${result.prevPage}`
+        : null,
+    nextLink: result.hasNextPage
+        ? `/api/products?limit=${limit}&page=${result.nextPage}`
+        : null
+    });
+} catch (error) {
+    console.error("Error en GET /api/products:", error);
+    res.status(500).json({ status: 'error', message: error.message });
+}
 });
 
 module.exports = router;
