@@ -46,4 +46,38 @@ try {
 }
 });
 
+// ✅ POST /api/products — Agregar producto con validación
+router.post('/', async (req, res) => {
+try {
+    const { title, description, code, price, status = true, stock, category, thumbnails = [] } = req.body;
+
+    // Validar campos requeridos
+    if (!title || !description || !code || !price || !stock || !category) {
+    return res.status(400).json({ status: 'error', message: 'Campos obligatorios faltantes' });
+    }
+
+    // Validar unicidad del code
+    const existente = await Product.findOne({ code });
+    if (existente) {
+    return res.status(400).json({ status: 'error', message: 'El código ya existe' });
+    }
+
+    const nuevoProducto = await Product.create({
+    title,
+    description,
+    code,
+    price,
+    status,
+    stock,
+    category,
+    thumbnails
+    });
+
+    res.status(201).json({ status: 'success', producto: nuevoProducto });
+} catch (error) {
+    console.error("Error en POST /api/products:", error);
+    res.status(500).json({ status: 'error', message: error.message });
+}
+});
+
 module.exports = router;
